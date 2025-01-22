@@ -1,11 +1,14 @@
 <?php
 
 require_once 'app/Controllers/HomeController.php';
+require_once 'app/Controllers/AuthController.php';
 
 $homeController = new HomeController();
+$authController = new AuthController();
 
 $routes = [
     '/' => ['controller' => $homeController, 'method' => 'index'],
+    '/register' => ['controller' => $authController, 'method' => 'register'],
 ];
 
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
