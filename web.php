@@ -9,6 +9,7 @@ $authController = new AuthController();
 $routes = [
     '/' => ['controller' => $homeController, 'method' => 'index'],
     '/register' => ['controller' => $authController, 'method' => 'register'],
+    '/login' => ['controller' => $authController, 'method' => 'login'],
 ];
 
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
