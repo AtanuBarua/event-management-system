@@ -59,4 +59,40 @@ class HomeController
 
         return [$errors, $data];
     }
+
+    public function deleteEvent() {
+        $eventModel = new Event();
+        $events = $eventModel->getAllEvents();
+        $errors = [];
+        try {
+            $id = $_POST['id'] ?? null;
+
+            if (!$id) {
+                $errors[] = 'ID is required';
+            }
+
+            $event = $eventModel->getEventById($id);
+
+            if (empty($event)) {
+                $errors[] = 'No event found';
+            } 
+
+            if (!empty($errors)) {
+                $baseUrl = dirname($_SERVER['SCRIPT_NAME']);
+                header('Location: ' . $baseUrl . '/');
+            }
+            
+            if ($eventModel->delete($id)) {
+                $baseUrl = dirname($_SERVER['SCRIPT_NAME']);
+                header('Location: ' . $baseUrl . '/');
+            } else {
+                $errors[] = 'Something went wrong. Please contact support.';
+                include 'views/index.php';
+            }
+        } catch (\Throwable $th) {
+            error_log($th->getMessage());
+            $errors[] = 'Something went wrong';
+            include 'views/index.php';
+        }
+    }
 }

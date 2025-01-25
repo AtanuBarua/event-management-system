@@ -10,6 +10,7 @@ $routes = [
     '/' => ['controller' => $homeController, 'method' => 'index'],
     '/register' => ['controller' => $authController, 'method' => 'register'],
     '/login' => ['controller' => $authController, 'method' => 'login'],
+    '/event/delete' => ['controller' => $homeController, 'method' => 'deleteEvent'],
 ];
 
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

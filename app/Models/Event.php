@@ -38,4 +38,17 @@ class Event
             'description' => $data['description']
         ]);
     }
+
+    public function delete($id) {
+        $sql = "DELETE from events WHERE id=:id";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute(['id' => $id]);
+    }
+
+    public function getEventById($id) {
+        $sql = "SELECT * FROM events WHERE id=:id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 }

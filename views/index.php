@@ -41,7 +41,10 @@
                                 <td><?= $row['description'] ?></td>
                                 <td>
                                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#eventModal" onclick="openModal(<?= htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8')?>)">Edit</button>
-                                    <button class="btn btn-danger">Delete</button>
+                                    <form action="/event-management-system/event/delete" method="POST" style="display:inline;">
+                                        <input type="hidden" name="id" value="<?= htmlspecialchars($row['id'], ENT_QUOTES, 'UTF-8') ?>">
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -89,7 +92,7 @@
             const nameInput = document.getElementById('name');
             const descriptionInput = document.getElementById('description')
             const submitBtn = document.getElementById('submitBtn')
-            
+
             if (event) {
                 modalTitle.textContent = 'Edit event'
                 idInput.value = event.id;
