@@ -26,7 +26,11 @@
             <table class="table mt-5">
                 <thead>
                     <tr>
-                        <th scope="col">#</th>
+                        <th scope="col">
+                            <a href="?<?= http_build_query(array_merge($_GET, [
+                                'sortOrder' => ($sortOrder == Event::SORT_ASCENDING ? Event::SORT_DESCENDING : Event::SORT_ASCENDING)
+                            ])) ?>">#</a>
+                        </th>
                         <th scope="col">Name</th>
                         <th scope="col">Description</th>
                         <th scope="col">Action</th>
@@ -40,7 +44,7 @@
                                 <td><?= $row['name'] ?></td>
                                 <td><?= $row['description'] ?></td>
                                 <td>
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#eventModal" onclick="openModal(<?= htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8')?>)">Edit</button>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#eventModal" onclick="openModal(<?= htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8') ?>)">Edit</button>
                                     <form action="/event-management-system/event/delete" method="POST" style="display:inline;">
                                         <input type="hidden" name="id" value="<?= htmlspecialchars($row['id'], ENT_QUOTES, 'UTF-8') ?>">
                                         <button type="submit" class="btn btn-danger">Delete</button>
@@ -51,26 +55,26 @@
                     <?php } else { ?>
                         <tr>
                             <td colspan="3" style="color: red; text-align: center;">No data found</td>
-                        </tr>                    
+                        </tr>
                     <?php  } ?>
                 </tbody>
             </table>
             <nav aria-label="Event Pagination">
                 <ul class="pagination justify-content-center">
                     <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
-                        <a class="page-link" href="?page=<?= $page - 1 ?>" aria-label="Previous">
+                        <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1]))?>" aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
                         </a>
                     </li>
 
                     <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                         <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
-                            <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                            <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>"><?= $i ?></a>
                         </li>
                     <?php endfor; ?>
 
                     <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
-                        <a class="page-link" href="?page=<?= $page + 1 ?>" aria-label="Next">
+                        <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1]))?>" aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                         </a>
                     </li>
@@ -130,4 +134,5 @@
         }
     </script>
 </body>
+
 </html>

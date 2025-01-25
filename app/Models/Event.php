@@ -5,6 +5,8 @@ require_once 'app/Database/Database.php';
 class Event
 {
     const PAGE_LIMIT = 5;
+    const SORT_ASCENDING = 'asc';
+    const SORT_DESCENDING = 'desc';
 
     private $pdo;
 
@@ -14,10 +16,10 @@ class Event
         $this->pdo = $database->getPdo();
     }
 
-    public function getAllEvents($limit = self::PAGE_LIMIT, $offset = 0) {
+    public function getAllEvents($limit = self::PAGE_LIMIT, $offset = 0, $sortOrder = self::SORT_DESCENDING) {
         $limit = (int) $limit;
         $offset = (int) $offset;
-        $sql = "SELECT * FROM events LIMIT $limit OFFSET $offset";
+        $sql = "SELECT * FROM events ORDER BY id $sortOrder LIMIT $limit OFFSET $offset";
         $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

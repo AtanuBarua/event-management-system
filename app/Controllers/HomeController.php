@@ -41,7 +41,8 @@ class HomeController
             $limit = Event::PAGE_LIMIT;
             $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
             $offset = ($page - 1) * $limit;
-            $events = $eventModel->getAllEvents($limit, $offset);
+            $sortOrder = isset($_GET['sortOrder']) && $_GET['sortOrder'] === Event::SORT_ASCENDING ? Event::SORT_ASCENDING : Event::SORT_DESCENDING;
+            $events = $eventModel->getAllEvents($limit, $offset, $sortOrder);
             $totalEvents = $eventModel->getTotalEventsCount();
             $totalPages = ceil($totalEvents/$limit);
             include 'views/index.php';
