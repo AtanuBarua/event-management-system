@@ -10,8 +10,10 @@
     <div class="container mt-4">
         <div class="d-flex justify-content-between mb-3">
             <div class="d-flex">
-                <input type="text" class="form-control me-2" placeholder="Search Event">
-                <button class="btn btn-primary">Search</button>
+                <form method="GET" class="d-flex">
+                    <input type="text" class="form-control me-2" value="<?= htmlspecialchars($_GET['name'] ?? '') ?>" name="name" placeholder="Search Event">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </form>
             </div>
             <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#eventModal" onclick="openModal()">Create Event</button>
         </div>

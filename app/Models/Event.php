@@ -16,11 +16,13 @@ class Event
         $this->pdo = $database->getPdo();
     }
 
-    public function getAllEvents($limit = self::PAGE_LIMIT, $offset = 0, $sortOrder = self::SORT_DESCENDING) {
+    public function getAllEvents($limit = self::PAGE_LIMIT, $offset = 0, $sortOrder = self::SORT_DESCENDING, $search = []) {
         $limit = (int) $limit;
         $offset = (int) $offset;
-        $sql = "SELECT * FROM events ORDER BY id $sortOrder LIMIT $limit OFFSET $offset";
-        $stmt = $this->pdo->query($sql);
+        $sql = "SELECT * FROM events WHERE name LIKE :name ORDER BY id $sortOrder LIMIT $limit OFFSET $offset";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':name', '%' . $search['name'] . '%', PDO::PARAM_STR);
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -59,9 +61,11 @@ class Event
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function getTotalEventsCount() {
-        $sql = "SELECT COUNT(*) as total FROM events";
-        $stmt = $this->pdo->query($sql);
+    public function getTotalEventsCount($search) {
+        $sql = "SELECT COUNT(*) as total FROM events WHERE name LIKE :name";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':name', '%' . $search['name'] . '%', PDO::PARAM_STR);
+        $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
     }
 }
