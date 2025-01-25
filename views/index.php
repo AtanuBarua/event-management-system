@@ -13,7 +13,7 @@
                 <input type="text" class="form-control me-2" placeholder="Search Event">
                 <button class="btn btn-primary">Search</button>
             </div>
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#eventModal">Create Event</button>
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#eventModal" onclick="openModal()">Create Event</button>
         </div>
 
         <div class="w-75 mx-auto">
@@ -29,6 +29,7 @@
                         <th scope="col">#</th>
                         <th scope="col">Name</th>
                         <th scope="col">Description</th>
+                        <th scope="col">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -38,6 +39,10 @@
                                 <th scope="row"><?= $row['id'] ?></th>
                                 <td><?= $row['name'] ?></td>
                                 <td><?= $row['description'] ?></td>
+                                <td>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#eventModal" onclick="openModal(<?= htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8')?>)">Edit</button>
+                                    <button class="btn btn-danger">Delete</button>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php } else { ?>
@@ -57,6 +62,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
+                            <input type="hidden" id="id" name="id">
                             <div class="mb-3">
                                 <label for="name" class="form-label">Event Name</label>
                                 <input type="text" class="form-control" id="name" name="name">
@@ -68,7 +74,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Create</button>
+                            <button type="submit" id="submitBtn" class="btn btn-primary">Create</button>
                         </div>
                     </div>
                 </form>
@@ -76,5 +82,28 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        const openModal = (event = null) => {
+            const modalTitle = document.getElementById('eventModalLabel');
+            const idInput = document.getElementById('id');
+            const nameInput = document.getElementById('name');
+            const descriptionInput = document.getElementById('description')
+            const submitBtn = document.getElementById('submitBtn')
+            
+            if (event) {
+                modalTitle.textContent = 'Edit event'
+                idInput.value = event.id;
+                nameInput.value = event.name;
+                descriptionInput.value = event.description;
+                submitBtn.textContent = 'Update'
+            } else {
+                modalTitle.textContent = 'Create event'
+                idInput.value = '';
+                nameInput.value = '';
+                descriptionInput.value = '';
+                submitBtn.textContent = 'Create'
+            }
+        }
+    </script>
 </body>
 </html>

@@ -13,12 +13,22 @@ class HomeController
             try {
                 list($errors, $data) = $this->validationEvent();
                 if (empty($errors)) {
-                    if ($eventModel->create($data)) {
-                        $baseUrl = dirname($_SERVER['SCRIPT_NAME']);
-                        header('Location: ' . $baseUrl . '/');
+                    if (!empty($_POST['id'])) {
+                        if ($eventModel->update($_POST['id'], $data)) {
+                            $baseUrl = dirname($_SERVER['SCRIPT_NAME']);
+                            header('Location: ' . $baseUrl . '/');
+                        } else {
+                            $errors[] = 'Something went wrong. Please contact support.';
+                            include 'views/index.php';
+                        }
                     } else {
-                        $errors[] = 'Something went wrong. Please contact support.';
-                        include 'views/index.php';
+                        if ($eventModel->create($data)) {
+                            $baseUrl = dirname($_SERVER['SCRIPT_NAME']);
+                            header('Location: ' . $baseUrl . '/');
+                        } else {
+                            $errors[] = 'Something went wrong. Please contact support.';
+                            include 'views/index.php';
+                        }
                     }
                 } else {
                     include 'views/index.php';

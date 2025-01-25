@@ -28,4 +28,14 @@ class Event
         ]);
         return $stmt->rowCount() > 0;
     }
+
+    public function update($id, $data) {
+        $sql = "UPDATE events SET name=:name, description=:description WHERE id=:id";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([
+            'id' => $id,
+            'name' => $data['name'],
+            'description' => $data['description']
+        ]);
+    }
 }
