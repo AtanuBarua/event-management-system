@@ -4,6 +4,8 @@ require_once 'app/Database/Database.php';
 
 class Event
 {
+    const PAGE_LIMIT = 5;
+
     private $pdo;
 
     public function __construct()
@@ -12,8 +14,11 @@ class Event
         $this->pdo = $database->getPdo();
     }
 
-    public function getAllEvents() {
-        $stmt = $this->pdo->query("SELECT * FROM events");
+    public function getAllEvents($limit = self::PAGE_LIMIT, $offset = 0) {
+        $limit = (int) $limit;
+        $offset = (int) $offset;
+        $sql = "SELECT * FROM events LIMIT $limit OFFSET $offset";
+        $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -50,5 +55,11 @@ class Event
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id' => $id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getTotalEventsCount() {
+        $sql = "SELECT COUNT(*) as total FROM events";
+        $stmt = $this->pdo->query($sql);
+        return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
     }
 }

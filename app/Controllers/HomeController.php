@@ -7,7 +7,6 @@ class HomeController
     public function index()
     {
         $eventModel = new Event();
-        $events = $eventModel->getAllEvents();
 
         if ($_SERVER['REQUEST_METHOD'] == "POST") {
             try {
@@ -39,6 +38,12 @@ class HomeController
                 include 'views/index.php';
             }
         } else {
+            $limit = Event::PAGE_LIMIT;
+            $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+            $offset = ($page - 1) * $limit;
+            $events = $eventModel->getAllEvents($limit, $offset);
+            $totalEvents = $eventModel->getTotalEventsCount();
+            $totalPages = ceil($totalEvents/$limit);
             include 'views/index.php';
         }
     }
