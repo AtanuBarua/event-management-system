@@ -51,6 +51,10 @@
                                         <input type="hidden" name="id" value="<?= htmlspecialchars($row['id'], ENT_QUOTES, 'UTF-8') ?>">
                                         <button type="submit" class="btn btn-danger">Delete</button>
                                     </form>
+                                    <form action="/event-management-system/event/register" method="POST" style="display:inline;">
+                                        <input type="hidden" name="event_id" value="<?= htmlspecialchars($row['id'], ENT_QUOTES, 'UTF-8') ?>">
+                                        <button type="submit" class="btn btn-success">Register</button>
+                                    </form>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

@@ -1,6 +1,7 @@
 <?php
 
 require_once 'app/Models/Event.php';
+require_once 'app/Models/EventAttendee.php';
 
 class HomeController
 {
@@ -100,6 +101,29 @@ class HomeController
             error_log($th->getMessage());
             $errors[] = 'Something went wrong';
             include 'views/index.php';
+        }
+    }
+
+    public function eventRegistration() {
+        if ($_SERVER['REQUEST_METHOD'] == "POST") {
+            $errors = [];
+
+            $eventAttendeeModel = new EventAttendee();
+
+            if(empty($_POST['event_id'])) {
+                $errors[] = 'Please select event';
+            }
+            
+            if (empty($erros)) {
+                session_start();
+                list($status, $message) = $eventAttendeeModel->create($_POST['event_id'], $_SESSION['user_id']);
+                $errors[] = $message;
+                $baseUrl = dirname($_SERVER['SCRIPT_NAME']);
+                header('Location: ' . $baseUrl . '/');
+            } else {
+                $baseUrl = dirname($_SERVER['SCRIPT_NAME']);
+                header('Location: ' . $baseUrl . '/');
+            }
         }
     }
 }
