@@ -1,32 +1,36 @@
 <?php
 
-require_once 'app/Database/Database.php';
+namespace App\Models;
 
-class EventAttendee
+use Core\Model;
+use PDO;
+
+class EventAttendee extends Model
 {
-    private $pdo;
-
-    public function __construct() {
-        $database = new Database();
-        $this->pdo = $database->getPdo();
-    }
-
     public function create($eventId, $userId) {
-        $this->pdo->beginTransaction();
         try {
+            if (!$this->pdo->inTransaction()) {
+                $this->pdo->beginTransaction();
+            }
             $sql = "SELECT capacity, (SELECT COUNT(*) FROM event_attendees WHERE event_id=:id) AS current_attendees FROM events WHERE id=:id";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute(['id' => $eventId]);
             $event = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if (empty($event)) {
-                $this->pdo->rollBack();
-                return [false, 'No event found'];
+                $_SESSION['errors'][] = 'No event found';
+                if ($this->pdo->inTransaction()) {
+                    $this->pdo->rollBack();
+                }
+                return;
             }
 
             if ($event['current_attendees'] >= $event['capacity']) {
-                $this->pdo->rollBack();
-                return [false, 'Event is fully booked'];
+                $_SESSION['errors'][] = 'Event is fully booked';
+                if ($this->pdo->inTransaction()) {
+                    $this->pdo->rollBack();
+                }
+                return;
             }
 
             $sql = "INSERT INTO event_attendees (event_id, user_id) VALUES (:event_id, :user_id)";
@@ -36,10 +40,15 @@ class EventAttendee
                 'user_id' => $userId
             ]);
             $this->pdo->commit();
-            return [true, 'Event registration successful'];
+            $_SESSION['message'] = 'Event registration successful';
         } catch (\Throwable $th) {
-            $this->pdo->rollBack();
-            return [false, 'Something went wrong'];
+            print_r($th->getMessage());
+
+            $_SESSION['errors'][] = 'Something went wrong';
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            return;
         }
     }
 }

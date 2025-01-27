@@ -5,7 +5,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Walton\\EventManagementSystem\\": "src/"
+            "Core\\": "core/",
+            "App\\": "app/"
         }
     }
 }

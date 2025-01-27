@@ -20,17 +20,22 @@
 
         <div class="w-75 mx-auto">
             <h1 class="text-center">Events</h1>
-            <?php if (isset($errors)): ?>
-                <?php foreach ($errors as $value): ?>
+            <?php if (isset($_SESSION['errors'])): ?>
+                <?php foreach ($_SESSION['errors'] as $value): ?>
                     <p style="color: red;"><?= $value; ?></p>
                 <?php endforeach; ?>
+                <?php unset($_SESSION['errors']) ?>
+            <?php endif; ?>
+            <?php if (isset($_SESSION['message'])): ?>
+                <p style="color: green;"><?= $_SESSION['message']; ?></p>
+                <?php unset($_SESSION['message']) ?>
             <?php endif; ?>
             <table class="table mt-5">
                 <thead>
                     <tr>
                         <th scope="col">
                             <a href="?<?= http_build_query(array_merge($_GET, [
-                                'sortOrder' => ($sortOrder == Event::SORT_ASCENDING ? Event::SORT_DESCENDING : Event::SORT_ASCENDING)
+                                'sortOrder' => ($sortOrder == \App\Models\Event::SORT_ASCENDING ? \App\Models\Event::SORT_DESCENDING : \App\Models\Event::SORT_ASCENDING)
                             ])) ?>">#</a>
                         </th>
                         <th scope="col">Name</th>
@@ -47,13 +52,13 @@
                                 <td><?= $row['description'] ?></td>
                                 <td>
                                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#eventModal" onclick="openModal(<?= htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8') ?>)">Edit</button>
-                                    <form action="/event-management-system/event/delete" method="POST" style="display:inline;">
+                                    <form action="/event-management-system/public/event/delete" method="POST" style="display:inline;">
                                         <input type="hidden" name="id" value="<?= htmlspecialchars($row['id'], ENT_QUOTES, 'UTF-8') ?>">
-                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                        <button onclick="return confirm('Are you sure?')" type="submit" class="btn btn-danger">Delete</button>
                                     </form>
-                                    <form action="/event-management-system/event/register" method="POST" style="display:inline;">
+                                    <form action="/event-management-system/public/event/register" method="POST" style="display:inline;">
                                         <input type="hidden" name="event_id" value="<?= htmlspecialchars($row['id'], ENT_QUOTES, 'UTF-8') ?>">
-                                        <button type="submit" class="btn btn-success">Register</button>
+                                        <button onclick="return confirm('Are you sure?')" type="submit" class="btn btn-success">Register</button>
                                     </form>
                                 </td>
                             </tr>
@@ -89,7 +94,7 @@
         </div>
         <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <form action='/event-management-system/' method="POST">
+                <form action='/event-management-system/public/' method="POST">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h1 class="modal-title fs-5" id="eventModalLabel">New Event</h1>
@@ -104,6 +109,10 @@
                             <div class="mb-3">
                                 <label for="description" class="form-label">Short Description</label>
                                 <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="capacity" class="form-label">Event Capacity</label>
+                                <input type="number" class="form-control" id="capacity" name="capacity">
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -122,6 +131,7 @@
             const idInput = document.getElementById('id');
             const nameInput = document.getElementById('name');
             const descriptionInput = document.getElementById('description')
+            const capacityInput = document.getElementById('capacity')
             const submitBtn = document.getElementById('submitBtn')
 
             if (event) {
@@ -129,12 +139,14 @@
                 idInput.value = event.id;
                 nameInput.value = event.name;
                 descriptionInput.value = event.description;
+                capacityInput.value = event.capacity;
                 submitBtn.textContent = 'Update'
             } else {
                 modalTitle.textContent = 'Create event'
                 idInput.value = '';
                 nameInput.value = '';
                 descriptionInput.value = '';
+                capacityInput.value = '';
                 submitBtn.textContent = 'Create'
             }
         }

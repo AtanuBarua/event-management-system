@@ -1,8 +1,11 @@
 <?php
 
-require_once 'app/Models/User.php';
+namespace App\Controllers;
 
-class AuthController
+use Core\Controller;
+use App\Models\User;
+
+class AuthController extends Controller
 {
     public function register()
     {
@@ -85,7 +88,7 @@ class AuthController
                 include 'views/login.php';
             }
         } else {
-            include 'views/login.php';
+            $this->render('login');
         }
     }
 

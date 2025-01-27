@@ -1,44 +1,17 @@
 <?php
 
-require_once 'app/Models/Event.php';
-require_once 'app/Models/EventAttendee.php';
+namespace App\Controllers;
 
-class HomeController
+use Core\Controller;
+use App\Models\Event;
+use App\Models\EventAttendee;
+
+class HomeController extends Controller
 {
     public function index()
     {
-        $eventModel = new Event();
-
-        if ($_SERVER['REQUEST_METHOD'] == "POST") {
-            try {
-                list($errors, $data) = $this->validationEvent();
-                if (empty($errors)) {
-                    if (!empty($_POST['id'])) {
-                        if ($eventModel->update($_POST['id'], $data)) {
-                            $baseUrl = dirname($_SERVER['SCRIPT_NAME']);
-                            header('Location: ' . $baseUrl . '/');
-                        } else {
-                            $errors[] = 'Something went wrong. Please contact support.';
-                            include 'views/index.php';
-                        }
-                    } else {
-                        if ($eventModel->create($data)) {
-                            $baseUrl = dirname($_SERVER['SCRIPT_NAME']);
-                            header('Location: ' . $baseUrl . '/');
-                        } else {
-                            $errors[] = 'Something went wrong. Please contact support.';
-                            include 'views/index.php';
-                        }
-                    }
-                } else {
-                    include 'views/index.php';
-                }
-            } catch (\Throwable $th) {
-                error_log($th->getMessage());
-                $errors[] = 'Something went wrong';
-                include 'views/index.php';
-            }
-        } else {
+        try {
+            $eventModel = new Event();
             $limit = Event::PAGE_LIMIT;
             $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
             $offset = ($page - 1) * $limit;
@@ -46,84 +19,120 @@ class HomeController
             $search['name'] = isset($_GET['name']) ? trim($_GET['name']) : '';
             $events = $eventModel->getAllEvents($limit, $offset, $sortOrder, $search);
             $totalEvents = $eventModel->getTotalEventsCount($search);
-            $totalPages = ceil($totalEvents/$limit);
-            include 'views/index.php';
+            $totalPages = ceil($totalEvents / $limit);
+            session_start();
+
+            if ($_SERVER['REQUEST_METHOD'] == "POST") {
+                $data = $this->validationEvent();
+
+                if (empty($_SESSION['errors'])) {
+                    $this->handleEventSubmission($eventModel, $data);
+                } 
+                $this->redirect();
+            } else {
+                $this->render('index', [
+                    'events' => $events,
+                    'page' => $page,
+                    'totalPages' => $totalPages,
+                    'sortOrder' => $sortOrder
+                ]);
+            }
+        } catch (\Throwable $th) {
+            var_dump($th->getMessage());
+            $_SESSION['errors'][] = 'Something went wrong';
+            $this->redirect();
         }
     }
 
     public function validationEvent()
     {
-        $errors = [];
         $data['name'] = trim($_POST['name']);
         $data['description'] = trim($_POST['description']);
+        $data['capacity'] = trim($_POST['capacity']);
 
         if (empty($data['name'])) {
-            $errors[] = 'Event name is required';
+            $_SESSION['errors'][] = 'Event name is required';
         }
 
         if (empty($data['description'])) {
-            $errors[] = 'Event description is required';
+            $_SESSION['errors'][] = 'Event description is required';
         }
 
-        return [$errors, $data];
+        if (empty($data['capacity'])) {
+            $_SESSION['errors'][] = 'Capacity is required';
+        }
+
+        return $data;
     }
 
-    public function deleteEvent() {
-        $eventModel = new Event();
-        $events = $eventModel->getAllEvents();
-        $errors = [];
+    private function handleEventSubmission($eventModel, $data)
+    {
+        $isUpdate = !empty($_POST['id']);
+        $isSuccess = $isUpdate ? $eventModel->update($_POST['id'], $data) : $eventModel->create($data);
+        
+        if ($isSuccess) {
+            $_SESSION['message'] = $isUpdate ? 'Event updated successfully' : 'Event created successfully';
+        } else {
+            $_SESSION['errors'][] = 'Something went wrong. Please contact support.';
+        }
+    }
+
+    private function redirect($url = '')
+    {
+        $baseUrl = dirname($_SERVER['SCRIPT_NAME']);
+        header('Location: ' . $baseUrl . '/' . $url);
+        exit();
+    }
+
+    public function deleteEvent()
+    {
         try {
+            $eventModel = new Event();
+            $events = $eventModel->getAllEvents();
+            session_start();
             $id = $_POST['id'] ?? null;
 
             if (!$id) {
-                $errors[] = 'ID is required';
+                $_SESSION['errors'][] = 'ID is required';
             }
 
             $event = $eventModel->getEventById($id);
 
             if (empty($event)) {
-                $errors[] = 'No event found';
-            } 
+                $_SESSION['errors'][] = 'No event found';
+            }
 
-            if (!empty($errors)) {
+            if (!empty($_SESSION['errors'])) {
                 $baseUrl = dirname($_SERVER['SCRIPT_NAME']);
                 header('Location: ' . $baseUrl . '/');
             }
-            
-            if ($eventModel->delete($id)) {
-                $baseUrl = dirname($_SERVER['SCRIPT_NAME']);
-                header('Location: ' . $baseUrl . '/');
+
+            if (!$eventModel->delete($id)) {
+                $_SESSION['errors'][] = 'Something went wrong. Please contact support.';
             } else {
-                $errors[] = 'Something went wrong. Please contact support.';
-                include 'views/index.php';
+                $_SESSION['message'] = 'Deleted successfully';
             }
+            $this->redirect();
         } catch (\Throwable $th) {
             error_log($th->getMessage());
-            $errors[] = 'Something went wrong';
-            include 'views/index.php';
+            $_SESSION['errors'][] = 'Something went wrong';
+            $this->redirect();
         }
     }
 
     public function eventRegistration() {
         if ($_SERVER['REQUEST_METHOD'] == "POST") {
-            $errors = [];
-
             $eventAttendeeModel = new EventAttendee();
 
-            if(empty($_POST['event_id'])) {
-                $errors[] = 'Please select event';
+            if (empty($_POST['event_id'])) {
+                $_SESSION['errors'][] = 'Please select event';
             }
-            
-            if (empty($erros)) {
+
+            if (empty($_SESSION['errors'])) {
                 session_start();
-                list($status, $message) = $eventAttendeeModel->create($_POST['event_id'], $_SESSION['user_id']);
-                $errors[] = $message;
-                $baseUrl = dirname($_SERVER['SCRIPT_NAME']);
-                header('Location: ' . $baseUrl . '/');
-            } else {
-                $baseUrl = dirname($_SERVER['SCRIPT_NAME']);
-                header('Location: ' . $baseUrl . '/');
-            }
+                $eventAttendeeModel->create($_POST['event_id'], $_SESSION['user_id']);
+            } 
+            $this->redirect();
         }
     }
 }

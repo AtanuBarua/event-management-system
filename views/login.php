@@ -22,7 +22,7 @@
                                 <p style="color: red;"><?= $value; ?></p>
                             <?php endforeach; ?>
                         <?php endif; ?>
-                        <form action="/event-management-system/login" method="POST">
+                        <form action="/event-management-system/public/login" method="POST">
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
                                 <input type="email" class="form-control" id="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" placeholder="Enter your email">

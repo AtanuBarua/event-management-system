@@ -1,17 +1,10 @@
 <?php
 
-require_once 'app/Database/Database.php';
-
-class User
+namespace App\Models;
+use Core\Model;
+use PDO;
+class User extends Model
 {
-    private $pdo;
-
-    public function __construct()
-    {
-        $database = new Database();
-        $this->pdo = $database->getPdo();
-    }
-
     public function getAllUsers()
     {
         $stmt = $this->pdo->query("SELECT * FROM users");

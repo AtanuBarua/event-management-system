@@ -1,7 +1,7 @@
 <?php
 
-require_once 'app/Controllers/HomeController.php';
-require_once 'app/Controllers/AuthController.php';
+use App\Controllers\AuthController;
+use App\Controllers\HomeController;
 
 $homeController = new HomeController();
 $authController = new AuthController();
@@ -15,7 +15,7 @@ $routes = [
 ];
 
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$requestUri = str_replace('/event-management-system', '', $requestUri);
+$requestUri = str_replace('/event-management-system/public', '', $requestUri);
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
 if (isset($routes[$requestUri])) {

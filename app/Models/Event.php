@@ -1,38 +1,34 @@
 <?php
 
-require_once 'app/Database/Database.php';
+namespace App\Models;
 
-class Event
+use Core\Model;
+use PDO;
+
+class Event extends Model
 {
     const PAGE_LIMIT = 5;
     const SORT_ASCENDING = 'asc';
     const SORT_DESCENDING = 'desc';
 
-    private $pdo;
-
-    public function __construct()
-    {
-        $database = new Database();
-        $this->pdo = $database->getPdo();
-    }
-
     public function getAllEvents($limit = self::PAGE_LIMIT, $offset = 0, $sortOrder = self::SORT_DESCENDING, $search = []) {
         $limit = (int) $limit;
         $offset = (int) $offset;
+        $searchName = $search['name'] ?? '';
         $sql = "SELECT * FROM events WHERE name LIKE :name ORDER BY id $sortOrder LIMIT $limit OFFSET $offset";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->bindValue(':name', '%' . $search['name'] . '%', PDO::PARAM_STR);
+        $stmt->bindValue(':name', '%' . $searchName . '%', PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function create($data) {
-        session_start();
-        $sql = "INSERT INTO events (name, description, created_by) VALUES (:name, :description, :created_by)";
+        $sql = "INSERT INTO events (name, description, capacity, created_by) VALUES (:name, :description, :capacity, :created_by)";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
             'name' => $data['name'],
             'description' => $data['description'],
+            'capacity' => $data['capacity'],
             'created_by' => $_SESSION['user_id'],
         ]);
         return $stmt->rowCount() > 0;
