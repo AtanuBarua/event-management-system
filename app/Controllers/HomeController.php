@@ -130,6 +130,13 @@ class HomeController extends Controller
 
             if (empty($_SESSION['errors'])) {
                 session_start();
+                $isAlreadyRegistered = $eventAttendeeModel->checkIfUserAlreadyRegistered($_SESSION['user_id'], $_POST['event_id']);
+                
+                if ($isAlreadyRegistered) {
+                    $_SESSION['errors'][] = 'You have already registered for this event';
+                    $this->redirect();
+                }
+
                 $eventAttendeeModel->create($_POST['event_id'], $_SESSION['user_id']);
             } 
             $this->redirect();

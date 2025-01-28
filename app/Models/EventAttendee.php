@@ -51,4 +51,19 @@ class EventAttendee extends Model
             return;
         }
     }
+
+    public function checkIfUserAlreadyRegistered($userId, $eventId) {
+        $sql = "SELECT COUNT(*) FROM event_attendees WHERE user_id = :user_id AND event_id = :event_id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            'user_id' => $userId,
+            'event_id' => $eventId
+        ]);
+
+        if ($stmt->fetchColumn() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
