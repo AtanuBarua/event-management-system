@@ -12,6 +12,7 @@ $routes = [
     '/login' => ['controller' => $authController, 'method' => 'login'],
     '/event/delete' => ['controller' => $homeController, 'method' => 'deleteEvent'],
     '/event/register' => ['controller' => $homeController, 'method' => 'eventRegistration'],
+    '/event-attendees/export' => ['controller' => $homeController, 'method' => 'eventAttendeesExport'],
 ];
 
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

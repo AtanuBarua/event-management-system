@@ -77,6 +77,7 @@ class AuthController extends Controller
                     session_regenerate_id(true);
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['user_email'] = $user['email'];
+                    $_SESSION['user_type'] = $user['type'];
                     $baseUrl = dirname($_SERVER['SCRIPT_NAME']);
                     header('Location: ' . $baseUrl . '/');
                     exit;

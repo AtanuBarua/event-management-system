@@ -142,4 +142,45 @@ class HomeController extends Controller
             $this->redirect();
         }
     }
+
+    public function eventAttendeesExport() {
+        session_start();
+    
+        try {
+            $eventId = $_GET['event_id'] ?? null;
+    
+            if (!$eventId || !is_numeric($eventId)) {
+                $_SESSION['errors'][] = 'Invalid event ID';
+                $this->redirect(); 
+            }
+    
+            $users = (new Event())->getEventAttendeeListByEventId($eventId);
+    
+            if (empty($users)) {
+                $_SESSION['errors'][] = 'No users found for the selected event';
+                $this->redirect();
+            }
+    
+            header('Content-Type: text/csv');
+            header('Content-Disposition: attachment; filename="event_' . $eventId . '_users.csv"');
+    
+            $output = fopen('php://output', 'w');
+            if ($output === false) {
+                $_SESSION['errors'][] = 'Failed to create CSV output';
+            }
+    
+            fputcsv($output, ['User ID', 'Name', 'Email', 'Event ID']);
+    
+            foreach ($users as $user) {
+                fputcsv($output, $user);
+            }
+    
+            fclose($output);
+            exit();
+    
+        } catch (\Exception $e) {
+            $_SESSION['errors'][] = 'Something went wrong';
+            $this->redirect(); 
+        }
+    }
 }

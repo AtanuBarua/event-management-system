@@ -60,6 +60,9 @@
                                         <input type="hidden" name="event_id" value="<?= htmlspecialchars($row['id'], ENT_QUOTES, 'UTF-8') ?>">
                                         <button onclick="return confirm('Are you sure?')" type="submit" class="btn btn-success">Register</button>
                                     </form>
+                                    <?php if ((new \App\Models\User)->isAdmin($_SESSION['user_type'] ?? 0)) { ?>
+                                        <a href="/event-management-system/public/event-attendees/export?event_id=<?=$row['id']?>" class="btn btn-warning">Export</a>
+                                    <?php } ?> 
                                 </td>
                             </tr>
                         <?php endforeach; ?>
