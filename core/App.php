@@ -7,7 +7,7 @@ class App
     public function __construct() {
         $routes = require __DIR__ . '/../web.php';
         $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-        $requestUri = str_replace('/event-management-system/public', '', $requestUri);
+        $requestUri = str_replace(dirname($_SERVER['SCRIPT_NAME']), '', $requestUri);
 
         if (array_key_exists($requestUri, $routes)) {
             [$controllerClass, $method] = $routes[$requestUri];
