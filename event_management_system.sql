@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Feb 01, 2025 at 04:18 PM
+-- Generation Time: Feb 01, 2025 at 04:23 PM
 -- Server version: 8.0.30
 -- PHP Version: 8.3.12
 
@@ -67,7 +67,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `type`) VALUES
-(17, 'admin', 'admin@email.com', '$2y$10$95g2e7HcZMbckX2ed5KaheORZDChKa67ZjypToNCaMqq/d7aGZfKS', 2);
+(17, 'admin', 'admin@email.com', '$2y$10$95g2e7HcZMbckX2ed5KaheORZDChKa67ZjypToNCaMqq/d7aGZfKS', 1);
 
 --
 -- Indexes for dumped tables
