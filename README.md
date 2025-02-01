@@ -6,4 +6,7 @@
    email: admin@email.com
    password: 123456
 6. for regular user just register a new one
-7. thank you
+7. done  
+
+![image](https://github.com/user-attachments/assets/b45da75b-bab1-4023-b572-68c02e830a53)
+
