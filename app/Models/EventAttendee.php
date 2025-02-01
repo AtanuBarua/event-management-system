@@ -66,4 +66,22 @@ class EventAttendee extends Model
             return false;
         }
     }
+
+    public function getEventAttendeeListByEventId($eventId) {
+        $sql = "SELECT users.id as user_id, users.name, users.email, event_attendees.event_id 
+                FROM event_attendees 
+                INNER JOIN USERS ON event_attendees.user_id = users.id
+                WHERE event_attendees.event_id = :event_id";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['event_id' => $eventId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getUserRegisteredEventIds($userId) {
+        $sql = "SELECT event_id from event_attendees WHERE user_id=:user_id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['user_id' => $userId]);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+    }
 }

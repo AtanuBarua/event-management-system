@@ -64,15 +64,4 @@ class Event extends Model
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
     }
-
-    public function getEventAttendeeListByEventId($eventId) {
-        $sql = "SELECT users.id as user_id, users.name, users.email, event_attendees.event_id 
-                FROM event_attendees 
-                INNER JOIN USERS ON event_attendees.user_id = users.id
-                WHERE event_attendees.event_id = :event_id";
-        
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['event_id' => $eventId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
 }
