@@ -17,12 +17,13 @@
                         <h2>Register</h2>
                     </div>
                     <div class="card-body">
-                        <?php if (isset($errors)): ?>
-                            <?php foreach ($errors as $value): ?>
+                        <?php if (!empty($_SESSION['errors'])): ?>
+                            <?php foreach ($_SESSION['errors'] as $value): ?>
                                 <p style="color: red;"><?= $value; ?></p>
                             <?php endforeach; ?>
+                            <?php unset($_SESSION['errors']) ?>
                         <?php endif; ?>
-                        <form action="/event-management-system/register" method="POST">
+                        <form action="/event-management-system/public/register" method="POST">
                             <div class="mb-3">
                                 <label for="name" class="form-label">Name</label>
                                 <input type="text" class="form-control" id="name" name="name" value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" placeholder="Enter your name">
@@ -42,7 +43,7 @@
                     </div>
                 </div>
                 <div class="text-center mt-3">
-                    <a href="/event-management-system/login">Already have an account? Login</a>
+                    <a href="/event-management-system/public/login">Already have an account? Login</a>
                 </div>
             </div>
         </div>

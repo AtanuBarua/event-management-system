@@ -17,10 +17,11 @@
                         <h2>Login</h2>
                     </div>
                     <div class="card-body">
-                        <?php if (isset($errors)): ?>
-                            <?php foreach ($errors as $value): ?>
+                        <?php if (!empty($_SESSION['errors'])): ?>
+                            <?php foreach ($_SESSION['errors'] as $value): ?>
                                 <p style="color: red;"><?= $value; ?></p>
                             <?php endforeach; ?>
+                        <?php unset($_SESSION['errors']) ?>
                         <?php endif; ?>
                         <form action="/event-management-system/public/login" method="POST">
                             <div class="mb-3">
@@ -38,7 +39,7 @@
                     </div>
                 </div>
                 <div class="text-center mt-3">
-                    <a href="/event-management-system/register">Don't have an account? Register</a>
+                    <a href="/event-management-system/public/register">Don't have an account? Register</a>
                 </div>
             </div>
         </div>

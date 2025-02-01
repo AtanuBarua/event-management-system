@@ -7,25 +7,32 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
+    public function __construct() {
+        requireGuest();
+    }
+
     public function register()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            list($errors, $data) = $this->validateRegistration();
+            $data = $this->validateRegistration();
 
-            if (!empty($errors)) {
-                include 'views/register.php';
-                exit;
+            if (!empty($_SESSION['errors'])) {
+                redirect('register');
             }
 
-            if ((new User())->create($data)) {
+            $userModel = new User();
+
+            if ($userModel->create($data)) {
+                $user = $userModel->getUserByEmail($data['email']);
+                $this->generateSessionForAuthenticatedUser($user);
                 $baseUrl = dirname($_SERVER['SCRIPT_NAME']);
                 header('Location: ' . $baseUrl . '/');
             } else {
-                $errors[] = 'Registration failed. Please contact support.';
-                include 'views/register.php';
+                $_SESSION['errors'][] = 'Registration failed. Please contact support.';
+                redirect('register');
             }
         } else {
-            include 'views/register.php';
+            $this->render('register');
         }
     }
 
@@ -34,59 +41,50 @@ class AuthController extends Controller
         $data['name'] = trim($_POST['name']);
         $data['email'] = trim($_POST['email']);
         $data['password'] = trim($_POST['password']);
-        $errors = [];
 
         if (empty($data['name'])) {
-            $errors[] = "Name required.";
+            $_SESSION['errors'][] = "Name required.";
         }
 
         if (empty($data['email'])) {
-            $errors[] = "Email required.";
+            $_SESSION['errors'][] = "Email required.";
         } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            $errors[] = 'Invalid email format.';
+            $_SESSION['errors'][] = 'Invalid email format.';
         }
 
         if (empty($data['password'])) {
-            $errors[] = "Password required.";
+            $_SESSION['errors'][] = "Password required.";
         } elseif (strlen($data['password']) < 6) {
-            $errors[] = "Password must be at least 6 characters long.";
+            $_SESSION['errors'][] = "Password must be at least 6 characters long.";
         }
 
         if (!empty($data['email'])) {
             $user = (new User())->getUserByEmail($data['email']);
 
             if (!empty($user)) {
-                $errors[] = "Email already used";
+                $_SESSION['errors'][] = "Email already used";
             }
         }
-
-        return [$errors, $data];
+        return $data;
     }
 
     public function login()
     {
-        session_start();
-
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            list($errors, $data) = $this->validateLogin();
+            $data = $this->validateLogin();
 
-            if (empty($errors)) {
+            if (empty($_SESSION['errors'])) {
                 $user = (new User())->getUserByEmail($data['email']);
             
                 if ($user && password_verify($data['password'], $user['password'])) {
-                    session_regenerate_id(true);
-                    $_SESSION['user_id'] = $user['id'];
-                    $_SESSION['user_email'] = $user['email'];
-                    $_SESSION['user_type'] = $user['type'];
-                    $baseUrl = dirname($_SERVER['SCRIPT_NAME']);
-                    header('Location: ' . $baseUrl . '/');
-                    exit;
+                    $this->generateSessionForAuthenticatedUser($user);
+                    redirect();
                 } else {
-                    $errors[] = 'Invalid email or password.';
-                    include 'views/login.php';
+                    $_SESSION['errors'][] = 'Invalid email or password.';
+                    redirect('login');
                 }
             } else {
-                include 'views/login.php';
+                redirect('login');
             }
         } else {
             $this->render('login');
@@ -99,18 +97,25 @@ class AuthController extends Controller
         $data['email'] = filter_var($data['email'], FILTER_SANITIZE_EMAIL);
         $data['password'] = $_POST['password'];
 
-        $errors = [];
+        $_SESSION['errors'] = [];
 
         if (empty($data['email'])) {
-            $errors[] = 'Email is required.';
+            $_SESSION['errors'][] = 'Email is required.';
         } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            $errors[] = 'Invalid email format.';
+            $_SESSION['errors'][] = 'Invalid email format.';
         }
 
         if (empty($data['password'])) {
-            $errors[] = 'Password is required.';
+            $_SESSION['errors'][] = 'Password is required.';
         }
 
-        return [$errors, $data];
+        return $data;
+    }
+
+    private function generateSessionForAuthenticatedUser($user) {
+        session_regenerate_id(true);
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['user_email'] = $user['email'];
+        $_SESSION['user_type'] = $user['type'];
     }
 }

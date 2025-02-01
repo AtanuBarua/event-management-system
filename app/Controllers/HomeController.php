@@ -8,6 +8,10 @@ use App\Models\EventAttendee;
 
 class HomeController extends Controller
 {
+    public function __construct() {
+        requireAuth();
+    }
+    
     public function index()
     {
         try {
@@ -18,33 +22,33 @@ class HomeController extends Controller
             $sortOrder = isset($_GET['sortOrder']) && $_GET['sortOrder'] === Event::SORT_ASCENDING ? Event::SORT_ASCENDING : Event::SORT_DESCENDING;
             $search['name'] = isset($_GET['name']) ? trim($_GET['name']) : '';
             $events = $eventModel->getAllEvents($limit, $offset, $sortOrder, $search);
+            $userRegisteredEvents = (new EventAttendee())->getUserRegisteredEventIds($_SESSION['user_id']);
             $totalEvents = $eventModel->getTotalEventsCount($search);
             $totalPages = ceil($totalEvents / $limit);
-            session_start();
 
             if ($_SERVER['REQUEST_METHOD'] == "POST") {
-                $data = $this->validationEvent();
+                $data = $this->validateEvent();
 
                 if (empty($_SESSION['errors'])) {
                     $this->handleEventSubmission($eventModel, $data);
                 } 
-                $this->redirect();
+                redirect();
             } else {
                 $this->render('index', [
                     'events' => $events,
                     'page' => $page,
                     'totalPages' => $totalPages,
-                    'sortOrder' => $sortOrder
+                    'sortOrder' => $sortOrder,
+                    'userRegisteredEvents' => $userRegisteredEvents
                 ]);
             }
         } catch (\Throwable $th) {
-            var_dump($th->getMessage());
             $_SESSION['errors'][] = 'Something went wrong';
-            $this->redirect();
+            redirect();
         }
     }
 
-    public function validationEvent()
+    private function validateEvent()
     {
         $data['name'] = trim($_POST['name']);
         $data['description'] = trim($_POST['description']);
@@ -77,19 +81,10 @@ class HomeController extends Controller
         }
     }
 
-    private function redirect($url = '')
-    {
-        $baseUrl = dirname($_SERVER['SCRIPT_NAME']);
-        header('Location: ' . $baseUrl . '/' . $url);
-        exit();
-    }
-
     public function deleteEvent()
     {
         try {
             $eventModel = new Event();
-            $events = $eventModel->getAllEvents();
-            session_start();
             $id = $_POST['id'] ?? null;
 
             if (!$id) {
@@ -112,11 +107,11 @@ class HomeController extends Controller
             } else {
                 $_SESSION['message'] = 'Deleted successfully';
             }
-            $this->redirect();
+            redirect();
         } catch (\Throwable $th) {
             error_log($th->getMessage());
             $_SESSION['errors'][] = 'Something went wrong';
-            $this->redirect();
+            redirect();
         }
     }
 
@@ -129,36 +124,33 @@ class HomeController extends Controller
             }
 
             if (empty($_SESSION['errors'])) {
-                session_start();
                 $isAlreadyRegistered = $eventAttendeeModel->checkIfUserAlreadyRegistered($_SESSION['user_id'], $_POST['event_id']);
                 
                 if ($isAlreadyRegistered) {
                     $_SESSION['errors'][] = 'You have already registered for this event';
-                    $this->redirect();
+                    redirect();
                 }
 
                 $eventAttendeeModel->create($_POST['event_id'], $_SESSION['user_id']);
             } 
-            $this->redirect();
+            redirect();
         }
     }
 
-    public function eventAttendeesExport() {
-        session_start();
-    
+    public function eventAttendeesExport() {    
         try {
             $eventId = $_GET['event_id'] ?? null;
     
             if (!$eventId || !is_numeric($eventId)) {
                 $_SESSION['errors'][] = 'Invalid event ID';
-                $this->redirect(); 
+                redirect(); 
             }
     
-            $users = (new Event())->getEventAttendeeListByEventId($eventId);
+            $users = (new EventAttendee())->getEventAttendeeListByEventId($eventId);
     
             if (empty($users)) {
                 $_SESSION['errors'][] = 'No users found for the selected event';
-                $this->redirect();
+                redirect();
             }
     
             header('Content-Type: text/csv');
@@ -180,7 +172,14 @@ class HomeController extends Controller
     
         } catch (\Exception $e) {
             $_SESSION['errors'][] = 'Something went wrong';
-            $this->redirect(); 
+            redirect(); 
         }
+    }
+
+    public function logout() {
+        session_start();
+        $_SESSION = [];
+        session_destroy();
+        redirect('login');
     }
 }

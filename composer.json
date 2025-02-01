@@ -7,6 +7,9 @@
         "psr-4": {
             "Core\\": "core/",
             "App\\": "app/"
-        }
+        },
+        "files": [
+            "app/helpers.php"
+        ]
     }
 }
