@@ -11,7 +11,7 @@
         <nav class="navbar navbar-expand-lg bg-dark navbar-dark mb-4 p-3 rounded">
             <a class="navbar-brand" href="#">Event Management</a>
             <div class="ms-auto">
-                <form action="/event-management-system/public/logout" method="POST" style="display: inline;">
+                <form action="<?=dirname($_SERVER['SCRIPT_NAME'])?>/logout" method="POST" style="display: inline;">
                     <button class="btn btn-danger">Logout</button>
                 </form>
             </div>
@@ -51,6 +51,7 @@
                     </th>                    
                     <th scope="col">Name</th>
                     <th scope="col">Description</th>
+                    <th scope="col">Capacity</th>
                     <th scope="col">Actions</th>
                 </tr>
             </thead>
@@ -61,20 +62,21 @@
                             <td><?= $row['id'] ?></td>
                             <td><?= $row['name'] ?></td>
                             <td><?= $row['description'] ?></td>
+                            <td><?= $row['registered'].'/'.$row['capacity'] ?></td>
                             <td>
                                 <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#eventModal" onclick="openModal(<?= htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8') ?>)">Edit</button>
-                                <form action="/event-management-system/public/event/delete" method="POST" style="display:inline;">
+                                <form action="<?=dirname($_SERVER['SCRIPT_NAME'])?>/event/delete" method="POST" style="display:inline;">
                                     <input type="hidden" name="id" value="<?= $row['id'] ?>">
                                     <button onclick="return confirm('Are you sure?')" type="submit" class="btn btn-danger btn-sm">Delete</button>
                                 </form>
                                 <?php if (!in_array($row['id'], $userRegisteredEvents)): ?>
-                                    <form action="/event-management-system/public/event/register" method="POST" style="display:inline;">
+                                    <form action="<?=dirname($_SERVER['SCRIPT_NAME'])?>/event/register" method="POST" style="display:inline;">
                                     <input type="hidden" name="event_id" value="<?= $row['id'] ?>">
                                     <button onclick="return confirm('Sure to register?')" type="submit" class="btn btn-success btn-sm">Register</button>
                                 </form>
                                 <?php endif ?>
                                 <?php if ((new \App\Models\User)->isAdmin($_SESSION['user_type'] ?? 0)): ?>
-                                    <a href="/event-management-system/public/event-attendees/export?event_id=<?=$row['id']?>" class="btn btn-warning btn-sm">Export</a>
+                                    <a href="<?=dirname($_SERVER['SCRIPT_NAME'])?>/event-attendees/export?event_id=<?=$row['id']?>" class="btn btn-warning btn-sm">Export</a>
                                 <?php endif ?>
                             </td>
                         </tr>
@@ -106,7 +108,7 @@
 
     <div class="modal fade" id="eventModal" tabindex="-1">
         <div class="modal-dialog">
-            <form action='/event-management-system/public/' method="POST">
+            <form action='<?=dirname($_SERVER['SCRIPT_NAME'])?>/' method="POST">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="eventModalLabel">New Event</h5>

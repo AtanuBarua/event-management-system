@@ -23,7 +23,7 @@
                             <?php endforeach; ?>
                         <?php unset($_SESSION['errors']) ?>
                         <?php endif; ?>
-                        <form action="/event-management-system/public/login" method="POST">
+                        <form action="<?=dirname($_SERVER['SCRIPT_NAME'])?>/login" method="POST">
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
                                 <input type="email" class="form-control" id="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" placeholder="Enter your email">
@@ -39,7 +39,7 @@
                     </div>
                 </div>
                 <div class="text-center mt-3">
-                    <a href="/event-management-system/public/register">Don't have an account? Register</a>
+                    <a href="<?=dirname($_SERVER['SCRIPT_NAME'])?>/register">Don't have an account? Register</a>
                 </div>
             </div>
         </div>

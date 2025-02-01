@@ -15,7 +15,14 @@ class Event extends Model
         $limit = (int) $limit;
         $offset = (int) $offset;
         $searchName = $search['name'] ?? '';
-        $sql = "SELECT * FROM events WHERE name LIKE :name ORDER BY id $sortOrder LIMIT $limit OFFSET $offset";
+        $sql = "SELECT events.*, COUNT(event_attendees.event_id) AS registered
+                FROM events
+                LEFT JOIN event_attendees ON events.id=event_attendees.event_id 
+                WHERE events.name LIKE :name 
+                GROUP BY events.id 
+                ORDER BY events.id $sortOrder 
+                LIMIT $limit OFFSET $offset";
+                
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':name', '%' . $searchName . '%', PDO::PARAM_STR);
         $stmt->execute();
