@@ -8,5 +8,6 @@
 6. for regular user just register a new one
 7. done  
 
-![image](https://github.com/user-attachments/assets/b45da75b-bab1-4023-b572-68c02e830a53)
+![image](https://github.com/user-attachments/assets/7f209d80-e026-4cee-a771-f747926eb675)
+
 
